@@ -187,12 +187,14 @@ class DPlayer {
         this.template.mobilePlayButton.innerHTML = Icons.pause;
 
         if (!fromNative) {
-            const playedPromise = Promise.resolve(this.video.play());
-            playedPromise
-                .catch(() => {
-                    this.pause();
-                })
-                .then(() => {});
+            if (this.video.paused) {
+                const playedPromise = Promise.resolve(this.video.play());
+                playedPromise
+                    .catch(() => {
+                        this.pause();
+                    })
+                    .then(() => {});
+            }
         }
         this.timer.enable('loading');
         this.container.classList.remove('dplayer-paused');
@@ -223,7 +225,9 @@ class DPlayer {
         this.template.playButton.innerHTML = Icons.play;
         this.template.mobilePlayButton.innerHTML = Icons.play;
         if (!fromNative) {
-            this.video.pause();
+            if (!this.video.paused) {
+                this.video.pause();
+            }
         }
         this.timer.disable('loading');
         this.container.classList.remove('dplayer-playing');
@@ -275,6 +279,9 @@ class DPlayer {
      * Toggle between play and pause
      */
     toggle() {
+        if (this.paused !== this.video.paused) {
+            return;
+        }
         if (this.video.paused) {
             this.play();
         } else {
